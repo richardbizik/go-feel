@@ -1,0 +1,84 @@
+Expression = BoxedExpression | TextualExpression 
+TextualExpression = ForExpression | IfExpression | QuantifiedExpression | Disjunction | Conjunction | Comparison | ArithmeticExpression | InstanceOf | PathExpression | FilterExpression | FunctionInvocation | Literal | SimplePositiveUnaryTest | Name | "(" Expression ")" 
+TextualExpressions = TextualExpression { "," TextualExpression } 
+ArithmeticExpression = Addition | Subtraction | Multiplication | Division | Exponentiation | ArithmeticNegation 
+SimpleExpression = ArithmeticExpression | SimpleValue 
+SimpleExpressions = SimpleExpression  { "," SimpleExpression } 
+SimplePositiveUnaryTest = ( "<" | "<=" | ">" | ">=" | "=" | "!=" ) , Endpoint | Interval 
+Interval = ( OpenIntervalStart | ClosedIntervalStart ) endpoint ".." , endpoint , ( OpenIntervalEnd | ClosedIntervalEnd ) 
+OpenIntervalStart = "(" | "]" 
+ClosedIntervalStart = "[" 
+OpenIntervalEnd = ")" | "[" 
+ClosedIntervalEnd = "]" 
+PositiveUnaryTest = Expression 
+PositiveUnaryTests = PositiveUnaryTest  { ","  PositiveUnaryTest } 
+UnaryTests = PositiveUnaryTests | "not (" PositiveUnaryTest ")" | "-"
+Endpoint = Expression 
+SimpleValue = QualifiedName | SimpleLiteral 
+QualifiedName = Name { "." name } 
+Addition = Expression  "+" Expression 
+Subtraction = Expression "-" Expression 
+Multiplication = Expression "*" Expression 
+Division = Expression  "/" Expression 
+Exponentiation = Expression "**" Expression 
+ArithmeticNegation = "-" Expression 
+Name = NameStart { NamePart | AdditionalNameSymbols } 
+NameStart = name start char, { name part char } ;
+Name part = name part char , { name part char } ;
+Name start char = "?" | [A-Z] | "_" | [a-z] | [\uC0-\uD6] | [\uD8-\uF6] | [\uF8-\u2FF] | [\u370-\u37D] | [\u37F-
+    \u1FFF] |
+    [\u200C-\u200D] | [\u2070-\u21 8F] | [\u2C00-\u2FEF] | [\u3001 -\uD7FF] | [\uF900-\uFDCF] | [\uFDF0-
+    \uFFFD] | [\u10000-\uEFFFF] ;
+29. name part char = name start char | digit | \uB7 | [\u0300-\u036F] | [\u203F-\u2040] ;
+30. additional name symbols = "." | "/" | "-" | "’" | "+" | "*" ;
+31. literal = simple literal | "null" ;
+32. simple literal = numeric literal | string literal | boolean literal | date time literal ;
+33. string literal = """, { character – (""" | vertical space) | string escape sequence}, """ ;
+34. boolean literal = "true" | "false" ; 
+35. numeric literal = [ "-" ] , ( digits , [ ".", digits ] | "." , digits, [ ( "e" | "E" ) , [ "+" | "-" ] , digits ] ) ;
+36. digit = [0-9] ;
+37. digits = digit , {digit} ;
+38. function invocation = expression , parameters ;
+39. parameters = "(" , ( named parameters | positional parameters ) , ")" ;
+40. named parameters = parameter name , ":" , expression , { "," , parameter name , ":" , expression } ;
+41. parameter name = name ;
+42. positional parameters = [ expression , { "," , expression } ] ;
+43. path expression = expression , "." , name ;
+44. for expression = "for" , name , "in" , iteration context { "," , name , "in" , iteration context } , "return" ,
+    expression
+    ;
+45. if expression = "if" , expression , "then" , expression , "else" expression ;
+46. quantified expression = ("some" | "every") , name , "in" , expression , { "," , name , "in" , expression } , "satisfies"
+    ,
+    expression ;
+47. disjunction = expression , "or" , expression ;
+48. conjunction = expression , "and" , expression ;
+49. comparison =
+    a. expression , ( "=" | "!=" | "<" | "<=" | ">" | ">=" ) , expression |
+    b. expression , "between" , expression , "and" , expression |
+    c. expression , "in" , positive unary test |
+    d. expression , "in" , " (", positive unary tests, ")" ;
+50. filter expression = expression , "[" , expression , "]" ;
+51. instance of = expression , "instance" , "of" , type ;
+52. type =
+    qualified name |
+    "range" "<" type ">" |
+    "list" "<" type ">" |
+    "context" "<" name ":" type { "," name ":" type } ">" | "function" "<" [ type { ", " type } ] ">" "->" type
+    ;
+53. boxed expression = list | function definition | context ;
+54. list = "[" , [ expression , { "," , expression } ] , "]" ; 
+55. function definition = "function" , "(" , [ formal parameter { "," , formal parameter } ] , ")" , [ "external" ] ,
+    expression ;
+56. formal parameter = parameter name [":" type ] ;
+57. context = "{" , [context entry , { "," , context entry } ] , "}" ;
+58. context entry = key , ":" , expression ;
+59. key = name | string literal ;
+60. date time literal = at literal | function invocation;
+61. white space = vertical space | \u0009 | \u0020 | \u0085 | \u00A0 | \u1 680 | \u1 80E | [\u2000-\u200B] | \u2028 |
+    \u2029 | \u202F | \u205F | \u3000 | \uFEFF ;
+62. vertical space = [\u000A-\u000D]
+63. iteration context = expression, [ “..”, expression ];
+64. string escape sequence = "\'" | "\"" | "\\" | "\n" | "\r" | "\t" | code point;
+65. at literal = “@”, string literal
+
